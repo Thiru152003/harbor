@@ -8,7 +8,6 @@ spec:
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: gp2  # Change to gp3 if needed
-  awsElasticBlockStore:
-    volumeID: "<your-ebs-volume-id>"
-    fsType: ext4
+  storageClassName: standard
+  hostPath:
+    path: "/mnt/data/postgresql"
