@@ -8,6 +8,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: gp2
-  hostPath:
-    path: "/mnt/data/harbor"
+  storageClassName: gp3
+  awsElasticBlockStore:
+    volumeID: "<your-ebs-volume-id>"
+    fsType: ext4
