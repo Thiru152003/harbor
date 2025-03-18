@@ -1,0 +1,6 @@
+apiVersion: v2
+name: harbor
+description: Helm chart for deploying Harbor with PostgreSQL
+version: 1.0.0
+appVersion: "2.9.0"
+dependencies: []

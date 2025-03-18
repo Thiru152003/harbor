@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harbor-config
+data:
+  database_host: "postgresql"
+  database_port: "5432"
+  database_username: "{{ .Values.postgresql.username }}"
+  database_password: "{{ .Values.postgresql.password }}"
+  database_name: "{{ .Values.postgresql.database }}"

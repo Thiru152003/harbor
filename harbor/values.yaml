@@ -1,0 +1,18 @@
+harbor:
+  image: "goharbor/harbor-core:v2.9.0"
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 80
+
+postgresql:
+  image: "postgres:15"
+  username: "harbor"
+  password: "harborpassword"
+  database: "harbor"
+  service:
+    port: 5432
+
+persistence:
+  storageClass: standard
+  size: 10Gi

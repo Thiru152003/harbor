@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harbor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+  template:
+    metadata:
+      labels:
+        app: harbor
+    spec:
+      containers:
+        - name: harbor-core
+          image: "{{ .Values.harbor.image }}"
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATABASE_HOST
+              value: "postgresql"
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_USERNAME
+              value: "{{ .Values.postgresql.username }}"
+            - name: DATABASE_PASSWORD
+              value: "{{ .Values.postgresql.password }}"
+            - name: DATABASE_NAME
+              value: "{{ .Values.postgresql.database }}"
+          volumeMounts:
+            - name: harbor-storage
+              mountPath: /data
+      volumes:
+        - name: harbor-storage
+          persistentVolumeClaim:
+            claimName: harbor-pvc
