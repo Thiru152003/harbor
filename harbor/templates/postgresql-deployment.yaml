@@ -15,15 +15,15 @@ spec:
       containers:
         - name: postgresql
           image: "{{ .Values.postgresql.image }}"
-          ports:
-            - containerPort: 5432
           env:
+            - name: POSTGRES_DB
+              value: "{{ .Values.postgresql.database }}"
             - name: POSTGRES_USER
               value: "{{ .Values.postgresql.username }}"
             - name: POSTGRES_PASSWORD
               value: "{{ .Values.postgresql.password }}"
-            - name: POSTGRES_DB
-              value: "{{ .Values.postgresql.database }}"
+          ports:
+            - containerPort: 5432
           volumeMounts:
             - name: postgresql-storage
               mountPath: /var/lib/postgresql/data
