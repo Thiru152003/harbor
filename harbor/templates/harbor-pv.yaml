@@ -4,10 +4,10 @@ metadata:
   name: harbor-pv
 spec:
   capacity:
-    storage: 10Gi
+    storage: 20Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: standard
+  storageClassName: gp2
   hostPath:
     path: "/mnt/data/harbor"
