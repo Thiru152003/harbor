@@ -1,18 +1,20 @@
 harbor:
-  image: "goharbor/harbor-core:v2.9.0"
+  image: "goharbor/harbor-core:v2.10.0"
   replicas: 1
-  service:
-    type: ClusterIP
-    port: 80
+  storageClass: "gp2"
+  volumeSize: "20Gi"
 
 postgresql:
   image: "postgres:15"
+  replicas: 1
+  storageClass: "gp2"
+  volumeSize: "10Gi"
   username: "harbor"
-  password: "harborpassword"
-  database: "harbor"
-  service:
-    port: 5432
+  password: "Harbor@123"
+  database: "registry"
 
-persistence:
-  storageClass: standard
-  size: 10Gi
+ingress:
+  enabled: true
+  hostname: "harbor.example.com"
+  tls: true
+  tlsSecretName: "harbor-tls"
