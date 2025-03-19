@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: harbor
 spec:
+  type: LoadBalancer
   ports:
     - port: 80
       targetPort: 8080
   selector:
     app: harbor
-  type: ClusterIP
