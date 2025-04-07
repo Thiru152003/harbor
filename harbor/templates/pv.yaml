@@ -43,17 +43,15 @@ metadata:
   name: harbor-database-pv
   labels:
     type: local
-    app.kubernetes.io/instance: harbor
 spec:
-  storageClassName: harbor-storage
+  storageClassName: "harbor-storage"
   capacity:
-    storage: 10Gi
+    storage: 10Gi  # Matches the database PVC size from your config
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /mnt/data/harbor-database  # Make sure this path exists on the node!
-  volumeMode: Filesystem
+    path: "/data/harbor/database"
+  persistentVolumeReclaimPolicy: Retain
 ---
 apiVersion: v1
 kind: PersistentVolume
