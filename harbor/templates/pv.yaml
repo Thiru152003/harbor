@@ -41,17 +41,16 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: harbor-database-pv
-  labels:
-    type: local
 spec:
-  storageClassName: "harbor-storage"
   capacity:
-    storage: 10Gi  # Matches the database PVC size from your config
+    storage: 10Gi
+  volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  hostPath:
-    path: "/data/harbor/database"
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: harbor-storage
+  hostPath:
+    path: /mnt/data/harbor-database  # You can change this to a valid node path
 ---
 apiVersion: v1
 kind: PersistentVolume
