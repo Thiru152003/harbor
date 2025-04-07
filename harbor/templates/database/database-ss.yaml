@@ -1,0 +1,112 @@
+{{- $database := .Values.persistence.persistentVolumeClaim.database }}
+{{- if eq .Values.database.type "internal" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "harbor.database" . }}"
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "harbor.labels" . | nindent 4 }}
+    component: database
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1
+  serviceName: "{{ template "harbor.database" . }}"
+  selector:
+    matchLabels:
+      {{- include "harbor.matchLabels" . | nindent 6 }}
+      component: database
+  template:
+    metadata:
+      labels:
+        {{- include "harbor.labels" . | nindent 8 }}
+        component: database
+        app.kubernetes.io/component: database
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/database/database-secret.yaml") . | sha256sum }}
+        {{- with .Values.database.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 999
+        fsGroup: 999
+      serviceAccountName: {{ .Values.database.internal.serviceAccountName | default "" }}
+      automountServiceAccountToken: {{ .Values.database.internal.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        - name: data-permissions-ensurer
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              mkdir -p /var/lib/postgresql/data/pgdata && chmod 700 /var/lib/postgresql/data/pgdata
+          securityContext:
+            runAsUser: 999
+            fsGroup: 999
+          volumeMounts:
+            - name: database-data
+              mountPath: /var/lib/postgresql/data
+              subPath: {{ $database.subPath | default "" }}
+      containers:
+        - name: database
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          livenessProbe:
+            exec:
+              command: ["/docker-healthcheck.sh"]
+            initialDelaySeconds: 300
+            periodSeconds: 10
+            timeoutSeconds: {{ .Values.database.internal.livenessProbe.timeoutSeconds | default 5 }}
+          readinessProbe:
+            exec:
+              command: ["/docker-healthcheck.sh"]
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            timeoutSeconds: {{ .Values.database.internal.readinessProbe.timeoutSeconds | default 5 }}
+          envFrom:
+            - secretRef:
+                name: "{{ template "harbor.database" . }}"
+          env:
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          volumeMounts:
+            - name: database-data
+              mountPath: /var/lib/postgresql/data
+              subPath: {{ $database.subPath | default "" }}
+            - name: shm-volume
+              mountPath: /dev/shm
+      volumes:
+        - name: shm-volume
+          emptyDir:
+            medium: Memory
+        {{- if not .Values.persistence.enabled }}
+        - name: database-data
+          emptyDir: {}
+        {{- else if $database.existingClaim }}
+        - name: database-data
+          persistentVolumeClaim:
+            claimName: {{ $database.existingClaim }}
+        {{- end }}
+
+  {{- if and .Values.persistence.enabled (not $database.existingClaim) }}
+  volumeClaimTemplates:
+    - metadata:
+        name: database-data
+        labels:
+          {{- include "harbor.legacy.labels" . | nindent 10 }}
+        annotations:
+          checksum/secret-ignore-drift-syncing-hint: "true"
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ $database.storageClass | default "gp3-csi" }}
+        resources:
+          requests:
+            storage: {{ $database.size | default "10Gi" }}
+  {{- end }}
+{{- end }}
