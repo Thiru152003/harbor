@@ -12,7 +12,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: "harbor-storage"  # Empty string matches PVCs that don't specify a storage class
+  storageClassName: harbor-storage  # Empty string matches PVCs that don't specify a storage class
   capacity:
     storage: 5Gi  # Matches the registry PVC size from your config
   accessModes:
@@ -28,7 +28,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: "harbor-storage"
+  storageClassName: harbor-storage
   capacity:
     storage: 10Gi  # Matches the jobservice PVC size from your config
   accessModes:
@@ -59,7 +59,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: "harbor-storage"
+  storageClassName: harbor-storage
   capacity:
     storage: 1Gi  # Matches the redis PVC size from your config
   accessModes:
@@ -75,7 +75,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: "harbor-storage"
+  storageClassName: harbor-storage
   capacity:
     storage: 5Gi  # Matches the trivy PVC size from your config
   accessModes:
